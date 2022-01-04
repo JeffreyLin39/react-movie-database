@@ -1,4 +1,4 @@
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect} from 'react';
 import { API_Functions } from '../API';
 
 const initialState = {
@@ -13,6 +13,7 @@ export const useHomeFetch = () => {
     const [state, setState] = useState(initialState);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     
     const getMovies = async (page, searchTerm = '') => {
         try {
@@ -21,8 +22,7 @@ export const useHomeFetch = () => {
             const movies = await API_Functions.getMovies(searchTerm, page);
             setState(prev => ({
                 ...movies, 
-                results:
-                page > 1 ? [...prev.results, ...movies.results] : [...movies.results]
+                results: page > 1 ? [...prev.results, ...movies.results] : [...movies.results]
             }))
         } catch (error) {
             setError(true);
@@ -34,7 +34,15 @@ export const useHomeFetch = () => {
     useEffect(() => {
         setState(initialState)
         getMovies(1, searchTerm);
-    }, [searchTerm])
+    }, [searchTerm]);
 
-    return {state, loading, error, searchTerm, setSearchTerm}
+    useEffect(() => {
+        if (!isLoadingMore) return;
+
+        getMovies(state.page + 1, searchTerm);
+        setIsLoadingMore(false);
+
+    }, [isLoadingMore, searchTerm, state.page])
+
+    return {state, loading, error, searchTerm, setSearchTerm, setIsLoadingMore};
 }
