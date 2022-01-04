@@ -18,7 +18,7 @@ const Thumbnails = ({image, movieID, clickable}) => (
 
 Thumbnails.propTypes = {
     image: PropTypes.string,
-    movieID: PropTypes.string,
+    movieID: PropTypes.number,
     clickable: PropTypes.bool
 }
 
